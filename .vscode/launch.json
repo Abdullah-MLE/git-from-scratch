@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+
+    {
+      "type": "bashdb",
+      "request": "launch",
+      "name": "Debug run_tests.sh",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/run_tests.sh",
+      "args": ["02"]
+    }
+  ]
+}
