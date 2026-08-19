@@ -97,6 +97,10 @@ all the code in one file.
    - `build_commit_body` creates the commit headers and message.
    - `hash_commit` hashes the body as a Git commit object.
    - `run_commit_hash` reads the lesson format and returns the commit hash.
+- `log_walk.py` — walking a commit graph.
+   - `parse_commit_line` reads a simple commit description.
+   - `walk_commits` visits reachable commits in newest-first order.
+   - `run_log_walk` handles commit and log commands.
 
 ## Simple coding rules
 
@@ -110,6 +114,8 @@ project consistent as more Git features are added:
 - Keep imports at the top and use one import per line when practical.
 - Reuse helpers from `pygit/` instead of copying hashing or parsing logic.
 - Prefer simple loops and conditionals over clever abstractions.
+- When a less familiar tool is useful, explain it close to the code. For
+   example, `log_walk.py` explains why `heapq` uses a negative timestamp.
 - Keep input/output code at the boundary; keep Git logic inside reusable modules.
 - Keep `main.py` empty between lessons so it never becomes a storage place for
    unrelated solutions.
