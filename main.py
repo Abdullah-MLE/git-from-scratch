@@ -1,33 +1,44 @@
 import sys, hashlib
 from pygit.objects import hash_object
 
-# Compute the SHA-1 of a tree object built from given entries.
-# Tree body entry format: "<mode> <name>\0<20-byte-binary-sha>"
-# Entries MUST be sorted by name (byte order).
+# Build a commit object body in the exact format git uses, then SHA-1.
 
 
 def main():
-    lines = sys.stdin.read().splitlines()
-    if not lines:
-        return
-    count = int(lines[0])
-    entries = []
-    for i in range(1, count + 1):
-        parts = lines[i].split(" ")
-        mode, name, hex_sha = parts[0], parts[1], parts[2]
-        entries.append((mode, name, hex_sha))
-    # TODO: sort entries by name.
-    entries.sort(key=lambda x: x[1])
+    data = sys.stdin.read()
+    lines = data.split("\n")
+    idx = 0
 
-    # TODO: build body by concatenating f"{mode} {name}\0" + bytes.fromhex(hex_sha).
-    body = b""
-    for mode, name, hex_sha in entries:
-        body += f"{mode} {name}\0".encode("utf-8") + bytes.fromhex(hex_sha)
+    tree_sha = lines[idx]; idx += 1
 
-    # TODO: wrap with "tree <body_size>\0" header and SHA-1; emit hex digest.
+    parent_count = int(lines[idx]); idx += 1
+    parents = []
+    for _ in range(parent_count):
+        parents.append(f"parent {lines[idx]}"); idx += 1
+    author_parts = lines[idx].split("|"); idx += 1
+    committer_parts = lines[idx].split("|"); idx += 1
+    if idx < len(lines) and lines[idx] == "":
+        idx += 1
+    message = "\n".join(lines[idx:])
 
-    # Use sys.stdout.write — the grader checks the bytes exactly (no trailing newline).
-    sys.stdout.write(hash_object("tree", body))
+    tree_line = f"tree {tree_sha}\n"
+    parent_lines = "\n".join(parents) + "\n" if parent_count else  ""
+    author_line = f"author {author_parts[0]} <{author_parts[1]}> {author_parts[2]} {author_parts[3]}\n"
+    committer_line = f"committer {committer_parts[0]} <{committer_parts[1]}> {committer_parts[2]} {committer_parts[3]}\n"
+    blank_line = "\n"
+
+    commit = tree_line + parent_lines + author_line + committer_line + blank_line + message
+    
+    # TODO: build body lines:
+    #   tree <tree_sha>
+    #   parent <parent_sha>     (per parent)
+    #   author <name> <email-in-angle-brackets> <ts> <tz>
+    #   committer ...           (same format)
+    #   <blank>
+    #   <message>
+    # Then wrap with "commit <size>\0" and SHA-1. Emit hex via sys.stdout.write
+    # (no trailing newline — the grader compares bytes exactly).
+    sys.stdout.write(hash_object("commit", commit))
 
 
 if __name__ == "__main__":
