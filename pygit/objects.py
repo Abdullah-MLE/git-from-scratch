@@ -5,15 +5,14 @@ VALID_TYPES = {"blob", "tree", "commit", "tag"}
 
 
 def hash_object(obj_type: str, content: str) -> str:
-    """
-    Compute SHA-1 hash for a git object: "<type> <len>\0<content>".
-    """
+    """Compute a SHA-1 hash for a Git object and its content."""
     header = f"{obj_type} {len(content)}\0"
     data = (header + content).encode("utf-8")
     return hashlib.sha1(data).hexdigest()
 
 
 def parse_object(raw: str) -> Tuple[str, str, str]:
+    """Parse and validate a serialized Git object."""
     sep = "\\0"
     sep_location = raw.find(sep)
     if sep_location == -1:
@@ -37,5 +36,5 @@ def parse_object(raw: str) -> Tuple[str, str, str]:
 
 
 def get_object_path(sha: str) -> str:
-    """Return loose object storage path for a given SHA-1."""
+    """Build the loose-object path for a given SHA-1."""
     return f".git/objects/{sha[:2]}/{sha[2:]}"
