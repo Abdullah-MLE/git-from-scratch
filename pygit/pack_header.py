@@ -20,28 +20,29 @@ def parse_pack_header(data: bytes) -> Tuple[Optional[PackHeader], Optional[str]]
     return (version, count), None
 
 
+def process_pack_line(raw: str) -> Optional[str]:
+    """Parse one hexadecimal pack header line."""
+    line = raw.strip()
+    if not line or line.startswith("#"):
+        return None
+    try:
+        data = bytes.fromhex(line)
+    except ValueError:
+        return "ERR bad hex"
+    header, error = parse_pack_header(data)
+    if error:
+        return error
+    version, count = header
+    return f"PACK v{version} count={count}"
+
+
 def process_pack_headers(lines: Iterable[str]) -> List[str]:
-    """Parse hexadecimal pack headers and collect one result per input line."""
+    """Parse hexadecimal pack headers and collect their results."""
     output = []
-    for raw in lines:
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        try:
-            data = bytes.fromhex(line)
-        except ValueError:
-            output.append("ERR bad hex")
-            continue
-
-        header, error = parse_pack_header(data)
-        if error is not None:
-            output.append(error)
-            continue
-
-        version, count = header
-        output.append(f"PACK v{version} count={count}")
-
+    for line in lines:
+        result = process_pack_line(line)
+        if result is not None:
+            output.append(result)
     return output
 
 

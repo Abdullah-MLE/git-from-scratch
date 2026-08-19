@@ -32,30 +32,22 @@ class MemoryStore:
 
     def execute_command(self, line: str) -> Optional[str]:
         """Execute one simulator command and return its output."""
-        line = line.rstrip("\n")
-        if not line:
+        parts = line.rstrip("\n").split(" ", 2)
+        if not parts[0]:
             return None
-
-        parts = line.split(" ", 2)
-        cmd = parts[0]
-
-        if cmd == "WRITE":
+        if parts[0] == "WRITE":
             obj_type = parts[1]
             body = parts[2] if len(parts) > 2 else ""
             return self.write(obj_type, body)
-
-        if cmd == "READ":
+        if parts[0] == "READ":
             sha = parts[1]
             return self.read(sha)
-
-        if cmd == "PATH":
+        if parts[0] == "PATH":
             sha = parts[1]
             return self.get_path(sha)
-
-        if cmd == "MISSING":
+        if parts[0] == "MISSING":
             sha = parts[1]
             return self.is_missing(sha)
-
         return None
 
     def process_stream(self, lines: List[str]) -> List[str]:

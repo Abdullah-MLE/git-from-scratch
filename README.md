@@ -92,6 +92,27 @@ all the code in one file.
    - `build_tree_body` sorts entries and creates the binary tree body.
    - `hash_tree` hashes that body as a Git tree object.
    - `run_tree_hash` reads the lesson format and returns the tree hash.
+- `commit.py` — commit object creation.
+   - `format_identity` converts the simple lesson identity format to Git format.
+   - `build_commit_body` creates the commit headers and message.
+   - `hash_commit` hashes the body as a Git commit object.
+   - `run_commit_hash` reads the lesson format and returns the commit hash.
+
+## Simple coding rules
+
+The code is intentionally simple and easy to study. These rules keep the
+project consistent as more Git features are added:
+
+- Keep each function short: about 15 to 20 lines maximum, not counting comments.
+- Give every function one clear job.
+- Use short, descriptive names such as `tree_sha`, `parent_shas`, and `body`.
+- Put a short English docstring at the start of every function.
+- Keep imports at the top and use one import per line when practical.
+- Reuse helpers from `pygit/` instead of copying hashing or parsing logic.
+- Prefer simple loops and conditionals over clever abstractions.
+- Keep input/output code at the boundary; keep Git logic inside reusable modules.
+- Keep `main.py` empty between lessons so it never becomes a storage place for
+   unrelated solutions.
 
 ### The `tests/` folder
 

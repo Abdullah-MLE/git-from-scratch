@@ -14,13 +14,9 @@ def hash_object(obj_type: str, content: Union[str, bytes]) -> str:
 
 def parse_object(raw: str) -> Tuple[str, str, str]:
     """Parse and validate a serialized Git object."""
-    sep = "\\0"
-    sep_location = raw.find(sep)
-    if sep_location == -1:
+    if "\\0" not in raw:
         raise ValueError("ERR no NUL separator")
-
-    header = raw[:sep_location]
-    body = raw[sep_location + len(sep):]
+    header, body = raw.split("\\0", 1)
 
     if " " not in header:
         raise ValueError("ERR invalid header format")
