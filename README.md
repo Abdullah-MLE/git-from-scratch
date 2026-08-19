@@ -40,11 +40,64 @@ Use **WSL** if you can: run `wsl --install` in an admin PowerShell once, then do
 3. When it passes: `git add -A && git commit -m "lesson 01" && git push`
 4. Hit **Check my solution** on the lesson page — shipthatcode pulls this repo and grades it against the full suite, including hidden tests.
 
-## How this repo is laid out
+## Project structure
 
-- `main.py` — the program you're grading right now.
-- `tests/` — the public test cases per lesson (`tests/01-…/1.in` → expected `1.out`).
-- `run_tests.sh` — the local runner. `.shipthatcode.json` tells the grader what this repo is; don't delete either.
+The project keeps the lesson entry point small and puts reusable Git ideas in
+the `pygit/` package. A lesson can import the code it needs instead of putting
+all the code in one file.
+
+```text
+.
+├── main.py
+├── pygit/
+│   ├── __init__.py
+│   ├── objects.py
+│   ├── store.py
+│   ├── cat_file.py
+│   ├── pack_header.py
+│   └── tree.py
+├── tests/
+├── run_tests.sh
+├── README.md
+└── .shipthatcode.json
+```
+
+### Root files
+
+- `main.py` — the small entry point used by the current lesson. It is kept
+   empty between lessons so the reusable code stays in `pygit/`.
+- `run_tests.sh` — runs the public tests for one lesson or for the whole set.
+- `README.md` — project notes, setup instructions, and this structure guide.
+- `.shipthatcode.json` — tells the course grader how to run the repository.
+
+### The `pygit/` package
+
+- `__init__.py` — marks `pygit` as a Python package.
+- `objects.py` — shared Git object helpers.
+   - `hash_object` builds the Git object header and returns its SHA-1 hash.
+   - `parse_object` checks and splits a serialized object.
+   - `get_object_path` builds the path used by a loose Git object.
+- `store.py` — an early in-memory object store.
+   - `MemoryStore` keeps objects by SHA-1.
+   - Its methods write, read, check, and process simple store commands.
+   - `run_simulator` connects the store to standard input and output.
+- `cat_file.py` — the reusable model for `git cat-file` queries.
+   - `CatFileStore` stores objects and handles `-e`, `-t`, `-s`, and `-p`.
+   - `run_cat_file` processes the lesson input and returns its output.
+- `pack_header.py` — packfile header parsing.
+   - `parse_pack_header` validates the 12-byte header and reads its version and
+      object count.
+   - `run_pack_headers` handles hexadecimal input lines.
+- `tree.py` — tree object creation.
+   - `build_tree_body` sorts entries and creates the binary tree body.
+   - `hash_tree` hashes that body as a Git tree object.
+   - `run_tree_hash` reads the lesson format and returns the tree hash.
+
+### The `tests/` folder
+
+Each numbered folder contains public input files for one lesson. The tests are
+useful examples of the input and output formats, but the reusable implementation
+belongs in `pygit/`.
 
 ### One lesson at a time
 

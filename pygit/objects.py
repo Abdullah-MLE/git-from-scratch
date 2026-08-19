@@ -4,10 +4,11 @@ from typing import Tuple
 VALID_TYPES = {"blob", "tree", "commit", "tag"}
 
 
-def hash_object(obj_type: str, content: str) -> str:
+def hash_object(obj_type: str, content: str | bytes) -> str:
     """Compute a SHA-1 hash for a Git object and its content."""
-    header = f"{obj_type} {len(content)}\0"
-    data = (header + content).encode("utf-8")
+    content_bytes = content.encode("utf-8") if isinstance(content, str) else content
+    header = f"{obj_type} {len(content_bytes)}\0".encode("utf-8")
+    data = header + content_bytes
     return hashlib.sha1(data).hexdigest()
 
 
